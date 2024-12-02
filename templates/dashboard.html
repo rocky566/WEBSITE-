@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <table border="1">
+        <tr>
+            <th>Task ID</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for task_id, task in tasks.items() %}
+        <tr>
+            <td>{{ task_id }}</td>
+            <td>{{ task.status }}</td>
+            <td>
+                <form method="POST" action="/stop_task">
+                    <input type="hidden" name="task_id" value="{{ task_id }}">
+                    <button type="submit">Stop Task</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
