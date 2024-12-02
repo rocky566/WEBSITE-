@@ -4,27 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #fff;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #ff1a1a;
+        }
+    </style>
 </head>
 <body>
     <h1>Admin Dashboard</h1>
-    <table border="1">
-        <tr>
-            <th>Task ID</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        {% for task_id, task in tasks.items() %}
-        <tr>
-            <td>{{ task_id }}</td>
-            <td>{{ task.status }}</td>
-            <td>
-                <form method="POST" action="/stop_task">
-                    <input type="hidden" name="task_id" value="{{ task_id }}">
-                    <button type="submit">Stop Task</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
+    <table>
+        <thead>
+            <tr>
+                <th>Task ID</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task_id, task in tasks.items() %}
+            <tr>
+                <td>{{ task_id }}</td>
+                <td>{{ task["status"] }}</td>
+                <td>
+                    {% if task["status"] == "running" %}
+                    <form method="POST" action="/stop_task" style="display: inline;">
+                        <input type="hidden" name="task_id" value="{{ task_id }}">
+                        <button type="submit">Stop</button>
+                    </form>
+                    {% else %}
+                    <span>N/A</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </body>
 </html>
