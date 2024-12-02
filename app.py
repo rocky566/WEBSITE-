@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import threading
-from facebook_tool import FacebookTool
+import time
 
 app = Flask(__name__)
 tasks = {}  # Dictionary to store task details
@@ -12,32 +12,25 @@ def dashboard():
     return render_template('dashboard.html', tasks=tasks)
 
 
-@app.route('/start_task', methods=['GET', 'POST'])
+@app.route('/start_task', methods=['POST'])
 def start_task():
     """Start a new task."""
-    if request.method == 'POST':
-        task_id = request.form['task_id']
-        post_url = request.form['post_url']
-        cookies = request.form['cookies']
-        delay = int(request.form['delay'])
-        comments_file = request.form['comments_file']
+    task_id = request.form['task_id']
+    if task_id in tasks:
+        return jsonify({"status": "error", "message": "Task already running"}), 400
 
-        if task_id in tasks:
-            return jsonify({"status": "error", "message": "Task already running"}), 400
+    def run_task(task_id):
+        tasks[task_id] = {"status": "running"}
+        try:
+            # Simulate a long-running task
+            time.sleep(10)
+        finally:
+            tasks[task_id] = {"status": "completed"}
 
-        def task_logic():
-            tasks[task_id] = {"status": "running"}
-            fb_tool = FacebookTool(task_id, post_url, cookies, delay, comments_file)
-            fb_tool.run()
-            tasks[task_id]["status"] = "completed"
-
-        thread = threading.Thread(target=task_logic)
-        thread.start()
-
-        tasks[task_id] = {"status": "starting"}
-        return jsonify({"status": "success", "task_id": task_id})
-    
-    return render_template('start_task.html')
+    thread = threading.Thread(target=run_task, args=(task_id,))
+    thread.start()
+    tasks[task_id] = {"status": "starting"}
+    return jsonify({"status": "success", "task_id": task_id})
 
 
 @app.route('/stop_task', methods=['POST'])
@@ -47,7 +40,7 @@ def stop_task():
     if task_id not in tasks or tasks[task_id]["status"] != "running":
         return jsonify({"status": "error", "message": "Task not running"}), 400
 
-    # Logic to stop task
+    # Simulate stopping the task
     tasks[task_id]["status"] = "stopped"
     return jsonify({"status": "success", "task_id": task_id})
 
